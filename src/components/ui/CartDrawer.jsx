@@ -6,7 +6,14 @@ import { useCartStore } from '../../store/useCartStore';
 
 export const CartDrawer = () => {
   const navigate = useNavigate();
-  const { isCartOpen, closeCart, items, updateQuantity, removeItem, getCartTotal } = useCartStore();
+  const {
+    isCartOpen,
+    closeCart,
+    items,
+    updateQuantity,
+    removeItem,
+    getCartTotal,
+  } = useCartStore();
 
   const handleCheckoutClick = () => {
     closeCart();
@@ -17,124 +24,140 @@ export const CartDrawer = () => {
     <AnimatePresence>
       {isCartOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeCart}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 z-[100] bg-ink/40 backdrop-blur-sm"
           />
 
-          {/* Drawer */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[101] flex flex-col"
+            transition={{ type: 'spring', damping: 24, stiffness: 220 }}
+            className="fixed right-0 top-0 z-[101] flex h-full w-full max-w-md flex-col bg-white shadow-lift"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-neutral">
-              <h2 className="text-xl font-headings font-extrabold text-textDark flex items-center gap-2">
-                <ShoppingBag size={24} className="text-primary" />
-                Your Cart
+            <div className="flex items-center justify-between border-b border-line bg-canvas p-6">
+              <h2 className="flex items-center gap-2 text-lg font-extrabold text-ink">
+                <ShoppingBag size={22} className="text-brand-600" />
+                Your cart
               </h2>
               <button
                 onClick={closeCart}
-                className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500 hover:text-textDark"
+                className="rounded-full p-2 text-muted transition hover:bg-white hover:text-brand-700"
+                aria-label="Close cart"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
-            {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6">
               {items.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
-                  <ShoppingBag size={64} className="opacity-20" />
-                  <p className="font-medium">Your cart is empty.</p>
-                  <button onClick={closeCart} className="text-primary font-bold hover:underline">
-                     Continue Shopping
+                <div className="flex h-full flex-col items-center justify-center gap-4 text-muted">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+                    <ShoppingBag size={28} />
+                  </div>
+                  <p className="text-sm font-semibold">Your cart is empty.</p>
+                  <button onClick={closeCart} className="btn-secondary">
+                    Continue shopping
                   </button>
                 </div>
               ) : (
-                items.map((item) => (
-                  <motion.div
-                    layout
-                    key={item.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className="flex gap-4 items-center bg-white p-3 rounded-xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
-                  >
-                    {/* Item Image */}
-                    <div className="w-20 h-20 bg-neutral rounded-lg overflow-hidden flex-shrink-0">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-contain mix-blend-multiply p-2" />
-                    </div>
-
-                    {/* Item Details */}
-                    <div className="flex-1">
-                      <h3 className="text-sm font-bold text-textDark leading-tight mb-1">{item.name}</h3>
-                      <div className="text-primary font-extrabold text-sm mb-3">
-                        NPR {item.priceNPR.toLocaleString()}
+                <div className="space-y-5">
+                  {items.map((item) => (
+                    <motion.div
+                      layout
+                      key={item.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      className="flex gap-4 rounded-2xl border border-line bg-white p-3"
+                    >
+                      <div className="h-20 w-20 overflow-hidden rounded-xl bg-brand-50">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          loading="lazy"
+                          decoding="async"
+                          className="h-full w-full object-contain p-2"
+                        />
                       </div>
-                      
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center border border-gray-200 rounded-lg bg-neutral">
+
+                      <div className="flex-1">
+                        <h3 className="text-sm font-bold text-ink truncate">{item.name}</h3>
+                        {item.stock === 0 && (
+                          <p className="text-xs font-semibold text-red-500">Out of stock</p>
+                        )}
+                        <div className="mt-1 text-sm font-extrabold text-brand-700">
+                          NPR {item.priceNPR.toLocaleString()}
+                        </div>
+                        <div className="mt-3 flex items-center gap-3">
+                          <div className="flex items-center rounded-lg border border-line bg-canvas">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="p-1 px-2 text-muted transition hover:text-brand-700"
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus size={14} />
+                            </button>
+                            <span className="w-7 text-center text-sm font-bold text-ink">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className={`p-1 px-2 transition ${
+                                typeof item.stock === 'number' && item.quantity >= item.stock
+                                  ? 'text-muted/60 cursor-not-allowed'
+                                  : 'text-muted hover:text-brand-700'
+                              }`}
+                              disabled={typeof item.stock === 'number' && item.quantity >= item.stock}
+                              aria-label="Increase quantity"
+                            >
+                              <Plus size={14} />
+                            </button>
+                          </div>
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="p-1 px-2 text-gray-500 hover:text-textDark transition-colors"
+                            onClick={() => removeItem(item.id)}
+                            className="text-xs font-semibold text-muted transition hover:text-brand-700"
+                            aria-label="Remove item"
                           >
-                            <Minus size={14} />
-                          </button>
-                          <span className="text-sm font-bold w-6 text-center">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="p-1 px-2 text-gray-500 hover:text-textDark transition-colors"
-                          >
-                            <Plus size={14} />
+                            Remove
                           </button>
                         </div>
-                        <button
-                          onClick={() => removeItem(item.id)}
-                          className="text-xs text-red-500 font-medium hover:underline ml-auto"
-                        >
-                          Remove
-                        </button>
                       </div>
-                    </div>
-                  </motion.div>
-                ))
+                    </motion.div>
+                  ))}
+                </div>
               )}
             </div>
 
-            {/* Footer / Checkout */}
             {items.length > 0 && (
-              <div className="border-t border-gray-100 p-6 bg-white shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-                <div className="space-y-3 mb-6">
-                  <div className="flex justify-between text-gray-500 text-sm font-medium">
+              <div className="border-t border-line bg-white p-6">
+                <div className="space-y-3 text-sm text-muted">
+                  <div className="flex justify-between">
                     <span>Subtotal</span>
                     <span>NPR {getCartTotal().toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-gray-500 text-sm font-medium">
+                  <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span className="text-green-500">Free</span>
+                    <span className="text-brand-600">Free</span>
                   </div>
-                  <div className="border-t border-gray-100 pt-3 flex justify-between items-end">
-                    <span className="text-textDark font-bold">Total</span>
-                    <span className="text-2xl font-extrabold text-primary">
+                  <div className="flex items-end justify-between border-t border-line pt-3 text-ink">
+                    <span className="font-bold">Total</span>
+                    <span className="text-xl font-extrabold text-brand-700">
                       NPR {getCartTotal().toLocaleString()}
                     </span>
                   </div>
                 </div>
 
-                <button 
+                <button
                   onClick={handleCheckoutClick}
-                  className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2 group"
+                  className="btn-primary mt-6 w-full"
+                  aria-label="Proceed to checkout"
                 >
-                  Proceed to Checkout <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  Proceed to checkout <ArrowRight size={18} />
                 </button>
               </div>
             )}

@@ -7,3 +7,7 @@ import { clsx } from "clsx";
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
+
+export function sanitizeText(value = "") {
+  return String(value).replace(/[<>]/g, "").trim();
+}

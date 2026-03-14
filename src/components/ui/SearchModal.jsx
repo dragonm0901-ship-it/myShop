@@ -1,164 +1,150 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowRight, Clock } from 'lucide-react';
+import { Search, X, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PRODUCTS, CATEGORIES } from '../../data/products';
 
-const RECENT_SEARCHES = ["Smart Watch", "Running Shoes", "Wireless Earbuds"];
-const POPULAR_CATEGORIES = ["Electronics", "Men's Fashion", "Groceries", "Home Appliances"];
-
-// Mock DB for instant search
-const MOCK_DB = [
-  { id: '1', name: "Aero X1 Running Shoes", price: "NPR 8,500", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&q=80" },
-  { id: '2', name: "Quantum Smart Watch", price: "NPR 25,000", image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=100&q=80" },
-  { id: '4', name: "Noise Cancelling Earbuds", price: "NPR 15,000", image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=100&q=80" },
-];
+const RECENT_SEARCHES = ['Smart watch', 'Running shoes', 'Air fryer'];
+const POPULAR_CATEGORIES = CATEGORIES.filter((category) => category !== 'All').slice(0, 4);
 
 export const SearchModal = ({ isOpen, onClose }) => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const inputRef = useRef(null);
 
-  // Auto focus input when opened
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+      setTimeout(() => inputRef.current?.focus(), 80);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
-      setQuery("");
+      setQuery('');
     }
   }, [isOpen]);
 
-  const results = query.length > 1 
-    ? MOCK_DB.filter(p => p.name.toLowerCase().includes(query.toLowerCase()))
+  const results = query.length > 1
+    ? PRODUCTS.filter((product) =>
+        product.name.toLowerCase().includes(query.toLowerCase())
+      )
     : [];
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[150] flex flex-col items-center pt-[10vh]">
-          {/* Backdrop */}
-          <motion.div 
+        <div className="fixed inset-0 z-[150] flex items-start justify-center px-4 pt-[10vh]">
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0"
+            className="absolute inset-0 bg-ink/60 backdrop-blur-sm"
           />
 
-          {/* Search Box */}
-          <motion.div 
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="relative z-10 w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden mx-4 flex flex-col max-h-[80vh]"
+            exit={{ opacity: 0, y: -20, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+            className="relative z-10 w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-lift"
           >
-            {/* Input Header */}
-            <div className="flex items-center px-6 py-4 border-b border-gray-100 bg-neutral/50">
-              <Search className="text-primary w-6 h-6 mr-4 flex-shrink-0" />
-              <input 
+            <div className="flex items-center gap-4 border-b border-line bg-canvas px-6 py-4">
+              <Search className="text-brand-600" />
+              <input
                 ref={inputRef}
-                type="text" 
+                type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search for products, brands, or categories..." 
-                className="flex-1 bg-transparent text-xl font-bold text-textDark placeholder:text-gray-400 focus:outline-none"
+                placeholder="Search products, brands, or categories"
+                className="flex-1 bg-transparent text-lg font-semibold text-ink placeholder:text-muted/70 focus:outline-none"
+                aria-label="Search products"
               />
-              <button 
+              <button
                 onClick={onClose}
-                className="p-2 bg-gray-200/50 hover:bg-gray-200 text-gray-500 rounded-full transition-colors ml-4"
+                className="rounded-full bg-white p-2 text-muted transition hover:text-brand-700"
+                aria-label="Close search"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
-            {/* Results Area */}
-            <div className="overflow-y-auto p-6 bg-white min-h-[300px]">
+            <div className="max-h-[65vh] overflow-y-auto p-6">
               {query.length === 0 ? (
-                // Default State (Recent/Popular)
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid gap-8 md:grid-cols-2">
                   <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Recent Searches</h3>
-                    <ul className="space-y-3">
-                      {RECENT_SEARCHES.map((item, idx) => (
-                        <li key={idx}>
-                          <button 
+                    <h3 className="text-xs font-bold uppercase tracking-[0.28em] text-muted">
+                      Recent searches
+                    </h3>
+                    <ul className="mt-4 space-y-3 text-sm">
+                      {RECENT_SEARCHES.map((item) => (
+                        <li key={item}>
+                          <button
                             onClick={() => setQuery(item)}
-                            className="flex items-center gap-3 text-gray-600 font-medium hover:text-primary transition-colors text-left w-full group"
+                            className="w-full text-left font-semibold text-ink transition hover:text-brand-700"
                           >
-                            <Clock size={16} className="text-gray-300 group-hover:text-primary transition-colors" /> {item}
+                            {item}
                           </button>
                         </li>
                       ))}
                     </ul>
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Popular Categories</h3>
-                    <div className="flex flex-wrap gap-2">
-                       {POPULAR_CATEGORIES.map((cat, idx) => (
-                         <Link 
-                           key={idx} 
-                           to="/shop" 
-                           onClick={onClose}
-                           className="px-4 py-2 bg-neutral hover:bg-primary/10 hover:text-primary text-gray-600 font-bold text-sm rounded-full transition-colors"
-                         >
-                           {cat}
-                         </Link>
-                       ))}
+                    <h3 className="text-xs font-bold uppercase tracking-[0.28em] text-muted">
+                      Popular categories
+                    </h3>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {POPULAR_CATEGORIES.map((category) => (
+                        <Link
+                          key={category}
+                          to="/shop"
+                          onClick={onClose}
+                          className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-brand-50 hover:text-brand-700"
+                        >
+                          {category}
+                        </Link>
+                      ))}
                     </div>
                   </div>
                 </div>
               ) : (
-                // Results State
                 <div>
-                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
-                    {results.length > 0 ? 'Products' : 'No Results Found'}
+                  <h3 className="text-xs font-bold uppercase tracking-[0.28em] text-muted">
+                    {results.length > 0 ? 'Products' : 'No results'}
                   </h3>
-                  
+
                   {results.length > 0 ? (
-                    <div className="space-y-2">
-                      {results.map(product => (
-                        <Link 
-                          to={`/product/${product.id}`} 
+                    <div className="mt-4 space-y-2">
+                      {results.map((product) => (
+                        <Link
                           key={product.id}
+                          to={`/product/${product.id}`}
                           onClick={onClose}
-                          className="flex items-center justify-between p-3 rounded-2xl hover:bg-neutral transition-colors group"
+                          className="flex items-center justify-between rounded-2xl border border-line p-3 transition hover:bg-brand-50"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm flex-shrink-0">
-                               <img src={product.image} alt={product.name} className="w-full h-full object-contain mix-blend-multiply p-1" />
+                            <div className="h-14 w-14 overflow-hidden rounded-xl bg-white">
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                loading="lazy"
+                                decoding="async"
+                                className="h-full w-full object-contain p-2"
+                              />
                             </div>
                             <div>
-                               <h4 className="font-bold text-textDark group-hover:text-primary transition-colors">{product.name}</h4>
-                               <p className="text-sm font-extrabold text-gray-500">{product.price}</p>
+                              <div className="text-sm font-bold text-ink">{product.name}</div>
+                              <div className="text-xs text-muted">NPR {product.priceNPR.toLocaleString()}</div>
                             </div>
                           </div>
-                          <ArrowRight size={18} className="text-gray-300 group-hover:text-primary opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all mr-4" />
+                          <ArrowRight size={18} className="text-muted" />
                         </Link>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-12 text-gray-500">
-                      <Search size={48} className="mx-auto mb-4 opacity-20" />
-                      <p className="font-medium text-lg text-textDark mb-1">We couldn't find anything for "{query}"</p>
-                      <p className="text-sm">Try searching for something else or browse our categories.</p>
-                      <Link 
-                        to="/shop" 
-                        onClick={onClose}
-                        className="inline-block mt-6 px-6 py-3 bg-neutral hover:bg-gray-200 text-textDark font-bold rounded-xl transition-colors"
-                      >
-                        Browse All Products
-                      </Link>
+                    <div className="py-10 text-center text-sm text-muted">
+                      No matches for "{query}". Try a different keyword or browse categories.
                     </div>
                   )}
                 </div>
               )}
-            </div>
-            
-            {/* Footer */}
-            <div className="bg-neutral/50 border-t border-gray-100 py-3 px-6 text-center text-xs font-medium text-gray-400 flex items-center justify-center gap-4">
-               <span><kbd className="bg-white border text-gray-500 rounded px-1.5 py-0.5 shadow-sm font-sans mx-1">↑</kbd><kbd className="bg-white border text-gray-500 rounded px-1.5 py-0.5 shadow-sm font-sans mx-1">↓</kbd> to navigate</span>
-               <span><kbd className="bg-white border text-gray-500 rounded px-1.5 py-0.5 shadow-sm font-sans mx-1">ESC</kbd> to close</span>
             </div>
           </motion.div>
         </div>
